@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="java0812.demo0812.miaosha.sqldao.miaoshaOrderDao">
+
+    <insert id="insertOneMiaoshaOrder" parameterType="miaoshaOrder" keyProperty="id" useGeneratedKeys="true">
+INSERT INTO miaoshaorder (userId,orderId,goodsId) VALUES(#{userId},#{orderId},#{goodsId});
+</insert>
+
+<!--    <resultMap id="miaoshaOrderMap" type="miaoshaOrder">-->
+<!--        <id column="id" property="id"></id>-->
+<!--        <result column="userId" property="userId"></result>-->
+<!--        <result column="orderId" property="goodsId"></result>-->
+<!--        <association property="info" javaType="orderInfo">-->
+<!--            <id column="id" property="id"></id>-->
+<!--            <result column="userId" property="userId"></result>-->
+<!--            <result column="deliveryAddrId" property="deliveryAddrId"></result>-->
+<!--            <result column="goodsId" property="goodsId"></result>-->
+<!--            <result column="goodsName" property="goodsName"></result>-->
+<!--            <result column="goodsCount" property="goodsCount"></result>-->
+<!--            <result column="goodsPrice" property="goodsPrice"></result>-->
+<!--            <result column="orderChannel" property="orderChannel"></result>-->
+<!--            <result column="status" property="status"></result>-->
+<!--            <result column="createDate" property="createDate"></result>-->
+<!--            <result column="payDate" property="payDate"></result>-->
+<!--        </association>-->
+
+
+<!--    </resultMap>-->
+
+</mapper>

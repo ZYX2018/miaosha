@@ -1,0 +1,173 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>商品详情</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}" />
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+</head>
+<body>
+
+<div class="panel panel-default">
+    <div class="panel-heading">秒杀商品详情</div>
+    <div class="panel-body">
+        <span th:if="${user eq null}"> 您还没有登录，请登陆后再操作<br/></span>
+       <span th:if="${user !=null}" th:text="'尊敬的用户：'+${user.getNickName()}+'欢迎您的购物'"></span></br>
+        <span th:if="${user.getAddress() == null}"><a href="updateAdress.do">请先完善收货地址</a></span>
+        <span th:if="${user.getAddress() !=null}" th:text="'收货地址:'+${user.getAddress()}"></span>
+    </div>
+    <table class="table" id="goodslist">
+        <tr>
+            <td>商品名称</td>
+            <td colspan="3" th:text="${goods.goodsName}"></td>
+        </tr>
+        <tr>
+            <td>商品图片</td>
+            <td colspan="3"><img th:src="@{${goods.goodsImg}}" width="200" height="200" /></td>
+        </tr>
+        <tr>
+            <td>秒杀开始时间</td>
+            <td th:text="${#dates.format(goods.startDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td id="miaoshaTip" width="500px">
+                <input type="hidden" id="remainSeconds" th:value="${remainSeconds}" />
+               <input type="hidden" id="ostatus" th:value="${miaoshaStatus}">
+                <span th:if="${miaoshaStatus eq 0}">秒杀倒计时：<span id="countDown" th:text="${remainSeconds}" th:width="100px"></span></span>
+                <span th:if="${miaoshaStatus eq 1}">秒杀进行中</span>
+                <span th:if="${miaoshaStatus eq 2 && goods.getStockCount() le 0}">秒杀已结束</span>
+            </td>
+            <td>
+                <form id="miaoshaForm" method="post" action="/miaosha.do">
+                    <button class="btn btn-primary btn-block" type="button" id="buyButton">立即秒杀</button>
+                    <input id="gId" type="hidden" name="goodsId" th:value="${goods.getGoodsId()}" />
+                    <input type="hidden" id="sum" th:value="${goods.getStockCount()}" >
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td>商品原价</td>
+            <td colspan="3" th:text="${goods.goodsPrice}+'元'"></td>
+        </tr>
+        <tr>
+            <td>秒杀价</td>
+            <td colspan="3" th:text="${goods.miaoshaPrice}+ '元'"></td>
+        </tr>
+        <tr>
+            <td>库存数量</td>
+            <td  colspan="3" th:text="${goods.stockCount} ">
+
+            </td>
+        </tr>
+    </table>
+</div>
+<div hidden >
+    <form>
+        <input>
+        <input>
+    </form>
+
+</div>
+</body>
+<script th:src="@{/webjars/jquery/3.4.1/jquery.js}"></script>
+<script>
+    $(function () {
+        countDown();
+        $("#buyButton").click(function () {
+            g_showLoading();
+            var goodsid=$("#gId").val();
+            //alert(goodsid);
+            $.post("/killthegoods",{goodsId:goodsid},function (data) {
+                layer.closeAll();
+                if(data.code==0){
+
+                }else{
+                    layer.msg(data.message);
+                }
+            })
+
+
+        })
+
+    });
+
+    function countDown(){
+        var remainSeconds = $("#remainSeconds").val();
+        var timeout;
+        if(remainSeconds > 0){//秒杀还没开始，倒计时
+            $("#buyButton").attr("disabled", true);
+            timeout = setTimeout(function(){
+                $("#countDown").text(formatSeconds(remainSeconds-1));
+                $("#remainSeconds").val(remainSeconds - 1);
+                countDown();
+            },1000);
+        }else if(remainSeconds == 0){//秒杀进行中
+            $("#buyButton").attr("disabled", false);
+            if(timeout){
+                clearTimeout(timeout);
+            }
+            $("#miaoshaTip").html("秒杀进行中");
+        }else{//秒杀已经结束
+           // alert($("#sum").val()+","+($("#sum").val()<=0));
+            if($("#sum").val()<=0||$("#ostatus").val()==2){
+                $("#buyButton").attr("disabled", true);
+                $("#miaoshaTip").html("秒杀已经结束");
+            }else {
+                $("#buyButton").attr("disabled", false);
+                $("#miaoshaTip").html("秒杀进行中");
+            }
+        }
+    }
+
+    /**
+     * 格式化秒
+     * @param int  value 总秒数
+     * @return string result 格式化后的字符串
+     */
+    function formatSeconds(value) {
+        var theTime = parseInt(value);// 需要转换的时间秒
+        var theTime1 = 0;// 分
+        var theTime2 = 0;// 小时
+        var theTime3 = 0;// 天
+        if(theTime > 60) {
+            theTime1 = parseInt(theTime/60);
+            theTime = parseInt(theTime%60);
+            if(theTime1 > 60) {
+                theTime2 = parseInt(theTime1/60);
+                theTime1 = parseInt(theTime1%60);
+                if(theTime2 > 24){
+                    //大于24小时
+                    theTime3 = parseInt(theTime2/24);
+                    theTime2 = parseInt(theTime2%24);
+                }
+            }
+        }
+        var result = '';
+        if(theTime > 0){
+            result = ""+parseInt(theTime)+"秒";
+        }
+        if(theTime1 > 0) {
+            result = ""+parseInt(theTime1)+"分"+result;
+        }
+        if(theTime2 > 0) {
+            result = ""+parseInt(theTime2)+"小时"+result;
+        }
+        if(theTime3 > 0) {
+            result = ""+parseInt(theTime3)+"天"+result;
+        }
+        return result;
+    }
+
+</script>
+
+</html>

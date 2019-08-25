@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>商品列表</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- jquery -->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css" />
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" src="/jquery-validation/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="/jquery-validation/localization/messages_zh.min.js"></script>
+    <!-- layer -->
+    <script type="text/javascript" src="/layer/layer.js"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" src="/js/md5.min.js"></script>
+    <!-- common.js -->
+    <script type="text/javascript" src="/js/common.js"></script>
+    <style type="text/css">
+        html,body{
+            height:100%;
+            width:100%;
+        }
+        body{
+            background:url('/img/bg2.jpg') no-repeat;
+            background-size:100% 100%;
+        }
+        #goodslist td{
+            border-top:1px solid #39503f61;
+        }
+    </style>
+</head>
+<body>
+
+<div class="panel panel-default" style="height:100%;background-color:rgba(222,222,222,0.8)">
+    <div class="panel-heading">秒杀商品列表</div>
+    <table class="table" id="goodslist">
+        <tr><td>商品名称</td><td>商品图片</td><td>商品原价</td><td>秒杀价</td><td>库存数量</td><td>详情</td></tr>
+<!--        <tr  th:each="goods,goodsStat : ${goosList}">-->
+<!--            <td th:text="${goods.goodsName}"></td>-->
+<!--            <td ><img src="${goods.goodsImg}}" width="100" height="100" /></td>-->
+<!--            <td th:text="${goods.goodsPrice}"></td>-->
+<!--            <td th:text="${goods.miaoshaPrice}"></td>-->
+<!--            <td th:text="${goods.stockCount}"></td>-->
+<!--            <td><a th:href="'/goods_detail.htm?goodsId='+${goods.getGoodsId()}">详情</a></td>-->
+<!--        </tr>-->
+    </table>
+</div>
+</body>
+</html>
+<script src="/webjars/jquery/3.4.1/jquery.js"></script>
+<script>
+    $(function(){
+        $.ajax({
+            url:"/glist",
+            type:"GET",
+            success:function(data){
+                if(data.code == 0){
+                    render(data.data);
+                }else{
+                    layer.msg(data.message);
+                }
+            },
+            error:function(){
+                layer.msg("客户端请求有误");
+            }
+        });
+    });
+
+  function render(data) {
+      $.each(data,function (index,item) {
+          var temptr=$("<tr></tr>");
+          var temptd=$("<td></td>");
+          temptd.text(item.goodsName);
+          temptr.append(temptd);
+          var temptd2=$("<td></td>");
+          var img=$("<img src=\""+item.goodsImg+"\" width=\"100\" height=\"100\" />")
+          temptd2.append(img);
+          temptr.append(temptd2);
+          var temptd3=$("<td></td>");
+          temptd3=$("<td></td>");
+          temptd3.text(''+item.goodsPrice);
+          temptr.append(temptd3);
+          var temptd4=$("<td></td>");
+          temptd4.text(''+item.miaoshaPrice);
+          temptr.append(temptd);
+          var temptd5=$("<td></td>");
+          temptd5.text(''+item.stockCount);
+          temptr.append(temptd5);
+          var temptd6=$("<td></td>");
+            var  tempId="/goods_detail.htm?goodsId="+item.goodsId;
+          var target=$("<a >详情</a>");
+          target.attr("href",tempId);
+          temptd6.append(target);
+          temptr.append(temptd6);
+          $("#goodslist").append(temptr);
+      })
+  }
+
+</script>

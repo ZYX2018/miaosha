@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="java0812.demo0812.miaosha.sqldao.UserMapper">
+
+    <select id="getOneUser" resultType="miaoshaUser">
+SELECT * FROM miaoshauser WHERE id=#{mobile} AND password=#{password}
+  </select>
+<select id="getOneById" resultType="miaoshaUser">
+    SELECT * FROM miaoshauser WHERE id=#{mobile}
+</select>
+<insert id="insertOneUser" parameterType="miaoshaUser">
+   INSERT into miaoshauser VALUES(#{id},#{nickName},#{password},#{salt},#{head},#{registerDate},#{lastLoginDate},#{loginCount})
+</insert>
+
+</mapper>
